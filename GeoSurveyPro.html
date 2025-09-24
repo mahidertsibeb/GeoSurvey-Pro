@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoSurvey Pro - የሳርቨይንግ መተግበሪያ</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-container {
+            max-width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 3px solid var(--secondary);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header-text {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .app-header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .app-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .version-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .tab-container {
+            display: flex;
+            background: #34495e;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 10px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--secondary);
+            background: #2c3e50;
+        }
+        
+        .tab:hover {
+            background: #3a506b;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .app-footer {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .copyright {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        .privacy-modal, .about-modal, .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        input[readonly] {
+            background-color: #f8f9fa;
+            color: #666;
+        }
+        
+        .btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: var(--info); color: white; }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-sm {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+        
+        .gps-status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .status-success { background: #d4f8e8; color: #27ae60; border: 2px solid #27ae60; }
+        .status-error { background: #fde8e8; color: #e74c3c; border: 2px solid #e74c3c; }
+        .status-loading { background: #e8f4fd; color: #3498db; border: 2px solid #3498db; }
+        .status-info { background: #e8f6f8; color: #17a2b8; border: 2px solid #17a2b8; }
+        
+        .coordinates-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .data-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            transition: transform 0.2s;
+        }
+        
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .data-card h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .data-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .icon-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 5px 8px;
+            transition: background 0.3s;
+        }
+        
+        .icon-btn:hover {
+            background: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .export-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .photo-section {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .photo-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: none;
+        }
+        
+        .photo-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .photo-thumbnail:hover {
+            border-color: var(--secondary);
+        }
+        
+        .photo-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        
+        .photo-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .photo-modal-content {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+        }
+        
+        .close-photo-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-box {
+            position: relative;
+            margin: 15px 0;
+        }
+        
+        .search-box input {
+            padding-left: 40px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        .small-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .storage-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 480px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .tab {
+                min-width: 100px;
+                padding: 12px 5px;
+                font-size: 12px;
+            }
+            
+            .coordinates-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .footer-links {
+                justify-content: center;
+            }
+            
+            .version-badge {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ሄዲንግ ከሎጎ -->
+    <div class="app-header">
+        <div class="header-content">
+            <div class="logo">📍</div>
+            <div class="header-text">
+                <h1>GeoSurvey Pro</h1>
+                <p>የሙዚዎን የሳርቨይንግ ሚዛን ያስተዳድሩ</p>
+            </div>
+        </div>
+        <div class="version-badge">v2.0</div>
+    </div>
+    
+    <!-- ትሮች -->
+    <div class="tab-container">
+        <div class="tab active" onclick="switchTab('data-collection')">📝 ዳታ ስብሰባ</div>
+        <div class="tab" onclick="switchTab('data-view')">📊 ዳታ እይታ</div>
+        <div class="tab" onclick="switchTab('export')">📤 ዳታ ኤክስፖርት</div>
+        <div class="tab" onclick="switchTab('photos')">📷 ፎቶዎች</div>
+    </div>
+    
+    <!-- ዳታ ስብሰባ ትር -->
+    <div id="data-collection" class="tab-content active">
+        <form id="surveyForm">
+            <div class="form-group">
+                <label for="projectName">🏗️ ፕሮጀክት ስም</label>
+                <input type="text" id="projectName" required placeholder="ለምሳሌ: ቤት ግንባታ ፕሮጀክት">
+            </div>
+            
+            <div class="form-group">
+                <label for="pointId">🔢 ነጥብ መለያ (ID)</label>
+                <input type="text" id="pointId" required placeholder="ለምሳሌ: P001, BOUNDARY_01">
+                <div class="small-text">ልዩ መለያ ይስጡ (ቁጥር ወይም ፊደል)</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="surveyorName">👤 የሳርቨየር ስም</label>
+                <input type="text" id="surveyorName" required placeholder="የእርስዎ ስም">
+            </div>
+            
+            <!-- GPS ክፍል -->
+            <div class="form-group">
+                <label>📍 የቦታ መጋጠሚያዎች</label>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+                    <button type="button" class="btn btn-primary" onclick="getSingleGPS()">
+                        📍 ነጠብ GPS
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="toggleContinuousGPS()" id="continuousBtn">
+                        🔄 ቀጣይ GPS
+                    </button>
+                </div>
+                
+                <div id="gpsStatus" class="gps-status" style="display: none;"></div>
+                
+                <div class="coordinates-grid">
+                    <div>
+                        <label for="latitude">🌍 ላቲቲዩድ</label>
+                        <input type="text" id="latitude" readonly placeholder="GPS ሲጠየቅ ይገለጻል">
+                    </div>
+                    <div>
+                        <label for="longitude">🌍 ሎንጊቲዩድ</label>
+                        <input type="text" id="longitude" readonly placeholder="GPS ሲጠየቅ ይገለጻል">
+                    </div>
+                </div>
+                
+                <div class="coordinates-grid">
+                    <div>
+                        <label for="elevation">⛰️ ከፍታ (ሜትር)</label>
+                        <input type="number" id="elevation" step="0.1" placeholder="ለምሳሌ: 2450.5">
+                    </div>
+                    <div>
+                        <label for="accuracy">🎯 ትክክለኛነት (ሜትር)</label>
+                        <input type="text" id="accuracy" readonly>
+                    </div>
+                </div>
+                <div class="small-text">ትንሽ ቁጥር = የበለጠ ትክክለኛ | ከ10ሜ በታች ጥሩ ነው</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="pointType">📋 የነጥብ አይነት</label>
+                <select id="pointType">
+                    <option value="boundary">🟦 የመሬት ድንበር</option>
+                    <option value="control">🟥 የቁጥጥር ነጥብ</option>
+                    <option value="topo">🟩 ትንፋሽ ነጥብ</option>
+                    <option value="building">🏠 ህንፃ ነጥብ</option>
+                    <option value="road">🛣️ መንገድ ነጥብ</option>
+                    <option value="utility">⚡ የአገልግሎት ነጥብ</option>
+                    <option value="tree">🌳 ዛፍ</option>
+                    <option value="water">💧 የውሃ ምንጭ</option>
+                    <option value="other">📌 ሌላ</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="pointDescription">📝 የነጥብ መግለጫ</label>
+                <textarea id="pointDescription" rows="3" placeholder="ስለ ነጥቡ ተጨማሪ መረጃ (አቅጣጫ, ልዩ ምልክት, ወዘተ...)"></textarea>
+            </div>
+            
+            <!-- ፎቶ ማስገባት -->
+            <div class="form-group">
+                <div class="photo-section">
+                    <label for="photoInput">📷 ፎቶ አሳይ</label>
+                    <input type="file" id="photoInput" accept="image/*" capture="camera" style="display: none;">
+                    <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('photoInput').click()">
+                        📸 ፎቶ አንሳ
+                    </button>
+                    <div id="photoStatus" class="small-text">ፎቶ አልተጫነም</div>
+                    
+                    <img id="photoPreview" class="photo-preview">
+                    
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removePhoto()" style="display: none;" id="removePhotoBtn">
+                            🗑️ ፎቶ አጽዳ
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button type="button" class="btn btn-success" onclick="savePointWithPhoto()">
+                    💾 ነጥብ አስቀምጥ
+                </button>
+                <button type="button" class="btn btn-danger" onclick="clearCurrentForm()">
+                    🗑️ ፎርም አጽዳ
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- ዳታ እይታ ትር -->
+    <div id="data-view" class="tab-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number" id="totalPoints">0</span>
+                <span>ጠቅላላ ነጥቦች</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="todayPoints">0</span>
+                <span>የዛሬ ነጥቦች</span>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchPoints" placeholder="ነጥቦችን ፈልግ... (በመለያ, ፕሮጀክት, ወይም አይነት)">
+        </div>
+        
+        <div id="storageInfo"></div>
+        
+        <div id="pointsList"></div>
+    </div>
+    
+    <!-- ዳታ ኤክስፖርት ትር -->
+    <div id="export" class="tab-content">
+        <h3>📤 ዳታ ኤክስፖርት አማራጮች</h3>
+        
+        <div class="export-options">
+            <button class="btn btn-success" onclick="exportToCSV()">
+                📊 CSV ፋይል (Excel/AutoCAD)
+            </button>
+            <button class="btn btn-primary" onclick="exportToJSON()">
+                📁 JSON ፋይል (ለመተግበሪያ)
+            </button>
+            <button class="btn btn-info" onclick="exportToKML()">
+                🗺️ KML ፋይል (Google Earth)
+            </button>
+            <button class="btn btn-warning" onclick="exportPhotos()">
+                📷 ፎቶዎችን ኤክስፖርት አድርግ
+            </button>
+            <button class="btn btn-danger" onclick="clearAllData()">
+                🗑️ ሁሉንም ዳታ አጽዳ
+            </button>
+        </div>
+        
+        <div id="exportResult" class="gps-status" style="display: none;"></div>
+        
+        <div class="data-card">
+            <h4>💡 የኤክስፖርት መመሪያዎች</h4>
+            <p><strong>CSV:</strong> Excel, AutoCAD, QGIS ለማስገባት</p>
+            <p><strong>JSON:</strong> ለሌሎች መተግበሪያዎች እና የድረ-ገፅ ካርታዎች</p>
+            <p><strong>KML:</strong> Google Earth, Google Maps ላይ ለማሳየት</p>
+            <p><strong>ፎቶዎች:</strong> የተነሱ ፎቶዎችን በZIP ፋይል ለማውጣት</p>
+        </div>
+    </div>
+    
+    <!-- ፎቶዎች ትር -->
+    <div id="photos" class="tab-content">
+        <h3>📷 የተነሱ ፎቶዎች</h3>
+        <div id="photosStats" class="stats-grid"></div>
+        
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchPhotos" placeholder="ፎቶዎችን ፈልግ... (በነጥብ መለያ)">
+        </div>
+        
+        <div id="photosGallery" class="photo-gallery"></div>
+        
+        <div id="noPhotosMessage" style="text-align: center; padding: 40px; color: #666;">
+            <p>📷 ምንም ፎቶዎች አልተነሱም</p>
+            <p>ፎቶዎችን ለማንሳት "ዳታ ስብሰባ" ትር ውስጥ ይሂዱ</p>
+        </div>
+    </div>
+    
+    <!-- ፉተር -->
+    <div class="app-footer">
+        <div class="footer-content">
+            <div class="copyright">
+                © 2024 GeoSurvey Pro. ሁሉም መብቶች የተጠበቁ ናቸው።
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link" onclick="showPrivacyPolicy()">የግላዊነት ፖሊሲ</a>
+                <a href="#" class="footer-link" onclick="showAbout()">ስለ እኛ</a>
+                <a href="#" class="footer-link" onclick="showHelp()">እገዛ</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ፎቶ ሞዳል -->
+<div id="photoModal" class="photo-modal">
+    <div class="close-photo-modal" onclick="closePhotoModal()">×</div>
+    <img id="modalImage" class="photo-modal-content">
+    <div id="modalInfo" style="color: white; text-align: center; margin-top: 10px;"></div>
+</div>
+
+<!-- የግላዊነት ፖሊሲ ሞዳል -->
+<div id="privacyModal" class="privacy-modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closePrivacyModal()">×</button>
+        <h2>🔒 የግላዊነት ፖሊሲ</h2>
+        
+        <h3>የዳታ ስብሰባ</h3>
+        <p>GeoSurvey Pro የሚከተሉትን ዳታዎች ብቻ ይሰበስባል፡-</p>
+        <ul>
+            <li>የGPS መጋጠሚያዎች (ላቲቲዩድ፣ ሎንጊቲዩድ፣ ከፍታ)</li>
+            <li>የተጠቃሚ የሳርቨይንግ ዳታ (ነጥብ መለያ፣ ፕሮጀክት ስም)</li>
+            <li>ከካሜራ የሚነሱ ፎቶዎች (ከፈቃድዎ ጋር)</li>
+        </ul>
+        
+        <h3>የዳታ አስቀምጥ</h3>
+        <p>ሁሉም ዳታ <strong>በስልክዎ ላይ ብቻ</strong> ይቀመጣል። ወደ ማንኛውም ሰርቨር አይላክም።</p>
+        
+        <h3>የዳታ ደህንነት</h3>
+        <p>ዳታዎችዎ በስልክዎ ማህደር ውስጥ ይቀመጣሉ እና ሌሎች መተግበሪያዎች መዳረሻ የላቸውም።</p>
+        
+        <h3>ፎቶ ማንሳት</h3>
+        <p>ፎቶ ማንሳት <strong>አማራጭ</strong> ነው። ፎቶ ለማንሳት ፍቃድ ማሰጠት አለብዎት።</p>
+        
+        <h3>የGPS መጠቀም</h3>
+        <p>GPS መጠቀም የሚከናወነው የቦታ መጋጠሚያዎችን ለማግኘት ብቻ ነው።</p>
+        
+        <h3>እውቅና</h3>
+        <p>ይህንን መተግበሪያ በመጠቀም ከላይ የተገለጹትን የግላዊነት ሁኔታዎች ተስማምተዋል።</p>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-primary" onclick="closePrivacyModal()">አገኘሁ ፣ ይዝጋ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ስለ እኛ ሞዳል -->
+<div id="aboutModal" class="about-modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeAboutModal()">×</button>
+        <h2>📍 ስለ GeoSurvey Pro</h2>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <div class="logo" style="margin: 0 auto; font-size: 40px; width: 80px; height: 80px;">📍</div>
+            <h3>GeoSurvey Pro v2.0</h3>
+        </div>
+        
+        <p><strong>GeoSurvey Pro</strong> ሙዚዎችን እና ሳርቨየሮችን ለሚያደርጉት ሥራ የሚያግዝ ሙሉ በሙሉ የሳርቨይንግ መተግበሪያ ነው።</p>
+        
+        <h3>ዋና ባህሪያት</h3>
+        <ul>
+            <li>✅ ትክክለኛ የGPS ዳታ ስብሰባ</li>
+            <li>✅ ፎቶ ማንሳት ከነጥቦች ጋር</li>
+            <li>✅ የተለያዩ የኤክስፖርት አማራጮች</li>
+            <li>✅ ያለ ኢንተርኔት አገልግሎት</li>
+            <li>✅ ለSamsung A16 የተመቻቸ</li>
+        </ul>
+        
+        <h3>የተጠቃሚ ጥቅሞች</h3>
+        <ul>
+            <li>🕒 ጊዜ ቁጠባ</li>
+            <li>💾 የዳታ ደህንነት</li>
+            <li>📱 ቀላልነት</li>
+            <li>🎯 ትክክለኛነት</li>
+        </ul>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <h4>📞 ድጋፍ እና እገዛ</h4>
+            <p>ለጥያቄዎች እና እገዛ፡-</p>
+            <p>📧 Email: support@geosurvey.pro</p>
+            <p>🌐 Website: www.geosurvey.pro</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-primary" onclick="closeAboutModal()">አገኘሁ</button>
+        </div>
+    </div>
+</div>
+
+<!-- እገዛ ሞዳል -->
+<div id="helpModal" class="help-modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeHelpModal()">×</button>
+        <h2>❓ እገዛ እና መመሪያ</h2>
+        
+        <h3>🔧 የመጀመሪያ አሰራር</h3>
+        <ol>
+            <li><strong>GPS ፍቃድ ይስጡ</strong> - "ነጠብ GPS" ጠቅ ሲያደርጉ ፍቃድ ይጠይቃል</li>
+            <li><strong>ፕሮጀክት ስም ያስገቡ</strong> - ለሥራዎ ስም ይስጡ</li>
+            <li><strong>ነጥብ መለያ ይግለጹ</strong> - ለእያንዳንዱ ነጥብ ልዩ መለያ (ለምሳሌ: P001)</li>
+            <li><strong>ዳታ ያስገቡ</strong> - "ነጥብ አስቀምጥ" ጠቅ ያድርጉ</li>
+        </ol>
+        
+        <h3>📍 GPS ማሻሻያ</h3>
+        <ul>
+            <li>ለትክክለኛ ውጤት ከግድግዳዎች እና ከፍተኛ ህንፃዎች ይራቁ</li>
+            <li>"ቀጣይ GPS" ለሚንቀሳቀሱ ነጥቦች ይጠቀሙ</li>
+            <li>የትክክለኛነት መጠን ከ10ሜ በታች እስኪሆን ይጠበቁ</li>
+        </ul>
+        
+        <h3>📤 የዳታ ኤክስፖርት</h3>
+        <ul>
+            <li><strong>CSV</strong> - ለExcel እና AutoCAD</li>
+            <li><strong>JSON</strong> - ለሌሎች መተግበሪያዎች</li>
+            <li><strong>KML</strong> - ለGoogle Earth</li>
+            <li>ዳታዎችን በየጊዜው ያውጡ ማከማቻ ላለመሞላት</li>
+        </ul>
+        
+        <h3>⚠️ አስፈላጊ ማስታወሻዎች</h3>
+        <ul>
+            <li>ዳታዎች በስልክዎ ላይ ብቻ ይቀመጣሉ</li>
+            <li>ፎቶዎችን ለአስፈላጊ ነጥቦች ብቻ ይጠቀሙ</li>
+            <li>ስልክዎን ሳያደምጡ ዳታዎች አይጠፉም</li>
+        </ul>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-primary" onclick="closeHelpModal()">አገኘሁ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// የመተግበሪያ ዳታ
+let surveyPoints = JSON.parse(localStorage.getItem('surveyPoints')) || [];
+let gpsWatchId = null;
+let isContinuousGPS = false;
+let currentPhoto = null;
+
+// ገጽ ሲጫን
+window.onload = function() {
+    updateStats();
+    displayPoints();
+    displayPhotos();
+    loadLastProject();
+    checkStorage();
+    
+    // የግላዊነት ፖሊሲ ማሳወቂያ (ለመጀመሪያ ጊዜ ተጠቃሚ)
+    const privacyAccepted = localStorage.getItem('privacyAccepted');
+    if (!privacyAccepted) {
+        setTimeout(() => {
+            showPrivacyPolicy();
+        }, 2000);
+    }
+};
+
+// ትሮች ለመቀያየር
+function switchTab(tabName) {
+    // ሁሉንም ትሮች ደብቅ
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // የተመረጠውን ትር አሳይ
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+    
+    // ትር በተመለከተ የተለየ ስራ አስፈጽም
+    if (tabName === 'data-view') {
+        updateStats();
+        displayPoints();
+    } else if (tabName === 'photos') {
+        displayPhotos();
+    }
+}
+
+// የግላዊነት ፖሊሲ አሳይ
+function showPrivacyPolicy() {
+    document.getElementById('privacyModal').style.display = 'flex';
+}
+
+function closePrivacyModal() {
+    document.getElementById('privacyModal').style.display = 'none';
+    localStorage.setItem('privacyAccepted', 'true');
+}
+
+// ስለ እኛ አሳይ
+function showAbout() {
+    document.getElementById('aboutModal').style.display = 'flex';
+}
+
+function closeAboutModal() {
+    document.getElementById('aboutModal').style.display = 'none';
+}
+
+// እገዛ አሳይ
+function showHelp() {
+    document.getElementById('helpModal').style.display = 'flex';
+}
+
+function closeHelpModal() {
+    document.getElementById('helpModal').style.display = 'none';
+}
+
+// GPS ዳታ ስብሰባ ተግባራት
+function getSingleGPS() {
+    const statusDiv = document.getElementById('gpsStatus');
+    statusDiv.className = 'gps-status status-loading';
+    statusDiv.innerHTML = '🔍 GPS መጋጠሚያዎችን ያግኛል...<br><small>እባክዎ ይጠበቁ</small>';
+    statusDiv.style.display = 'block';
+    
+    if (!navigator.geolocation) {
+        showGPSStatus('❌ ስልክዎ GPS አይደገፍም', 'error');
+        return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            updateCoordinates(position);
+            showGPSStatus('✅ GPS መጋጠሚያዎች ተሰብስበዋል!', 'success');
+        },
+        error => {
+            showGPSStatus(`❌ ${getGPSError(error)}`, 'error');
+        },
+        { 
+            enableHighAccuracy: true, 
+            timeout: 15000,
+            maximumAge: 60000 
+        }
+    );
+}
+
+function toggleContinuousGPS() {
+    const btn = document.getElementById('continuousBtn');
+    const statusDiv = document.getElementById('gpsStatus');
+    
+    if (!isContinuousGPS) {
+        gpsWatchId = navigator.geolocation.watchPosition(
+            position => {
+                updateCoordinates(position);
+                statusDiv.className = 'gps-status status-success';
+                statusDiv.innerHTML = '🎯 ቀጣይ GPS አብሮ እየሰራ ነው...';
+                statusDiv.style.display = 'block';
+            },
+            error => {
+                statusDiv.className = 'gps-status status-error';
+                statusDiv.innerHTML = `❌ ${getGPSError(error)}`;
+                statusDiv.style.display = 'block';
+            },
+            { 
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+        
+        isContinuousGPS = true;
+        btn.innerHTML = '⏹️ ቀጣይ GPS አቁም';
+        btn.className = 'btn btn-danger';
+    } else {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        isContinuousGPS = false;
+        btn.innerHTML = '🔄 ቀጣይ GPS';
+        btn.className = 'btn btn-warning';
+        statusDiv.style.display = 'none';
+    }
+}
+
+// GPS ሁኔታ አሳይ
+function showGPSStatus(message, type) {
+    const statusDiv = document.getElementById('gpsStatus');
+    statusDiv.className = `gps-status status-${type}`;
+    statusDiv.innerHTML = message;
+    statusDiv.style.display = 'block';
+    
+    if (type === 'success') {
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// መጋጠሚያዎችን አዘምን
+function updateCoordinates(position) {
+    const coords = position.coords;
+    document.getElementById('latitude').value = coords.latitude.toFixed(6);
+    document.getElementById('longitude').value = coords.longitude.toFixed(6);
+    document.getElementById('accuracy').value = coords.accuracy.toFixed(1);
+    
+    // ከፍታ ካለ አስገባ
+    if (coords.altitude && !isNaN(coords.altitude)) {
+        document.getElementById('elevation').value = coords.altitude.toFixed(1);
+    }
+}
+
+// የGPS ስህተት መልእክት
+function getGPSError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED: 
+            return 'GPS ፍቃድ ተከልክሏል። እባክዎ ፍቃድ ይስጡ';
+        case error.POSITION_UNAVAILABLE: 
+            return 'የቦታ መረጃ አልተገኘም። ከሰው በሚራቅ ቦታ ይሁኑ';
+        case error.TIMEOUT: 
+            return 'GPS ጥያቄ ጊዜው አልፏል። እንደገና ይሞክሩ';
+        default: 
+            return 'ያልታወቀ ስህተት ተከስቷል';
+    }
+}
+
+// ፎቶ ማስገባት
+document.getElementById('photoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // ፋይል መጠን ይፈትሹ (5MB ከፍ ብሎ)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('❗ ፎቶው በጣም ትልቅ ነው! ከ5MB በታች የሆነ ፎቶ ይምረጡ።');
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            currentPhoto = e.target.result;
+            
+            // ፕሪቪው አሳይ
+            const preview = document.getElementById('photoPreview');
+            preview.src = currentPhoto;
+            preview.style.display = 'block';
+            
+            // ሁኔታ አሳይ
+            document.getElementById('photoStatus').textContent = '✅ ፎቶ ተጫኗል (' + (file.size / 1024).toFixed(0) + 'KB)';
+            document.getElementById('removePhotoBtn').style.display = 'block';
+            
+            // ፎቶ መጠን ይፈትሹ
+            checkStorage();
+        };
+        
+        reader.readAsDataURL(file);
+    }
+});
+
+// ፎቶ አጽዳ
+function removePhoto() {
+    currentPhoto = null;
+    document.getElementById('photoInput').value = '';
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('photoStatus').textContent = 'ፎቶ አልተጫነም';
+    document.getElementById('removePhotoBtn').style.display = 'none';
+}
+
+// ነጥብ ከፎቶ ጋር አስቀምጥ
+function savePointWithPhoto() {
+    const pointId = document.getElementById('pointId').value.trim();
+    const latitude = document.getElementById('latitude').value;
+    
+    // ማረጋገጫ
+    if (!pointId) {
+        alert('❗ እባክዎ ነጥብ መለያ ያስገቡ');
+        return;
+    }
+    
+    if (!latitude) {
+        alert('❗ እባክዎ መጀመሪያ GPS መጋጠሚያዎችን ያግኙ');
+        return;
+    }
+    
+    // የነጥብ መለያ እንደማይገለበጥ ያረጋግጡ
+    const existingPoint = surveyPoints.find(point => point.id === pointId);
+    if (existingPoint) {
+        if (!confirm(`ነጥብ "${pointId}" አስቀድሞ አለ! መተካት ይፈልጋሉ?`)) {
+            return;
+        }
+        // ያለውን ነጥብ ሰርዝ
+        surveyPoints = surveyPoints.filter(point => point.id !== pointId);
+    }
+    
+    const point = {
+        id: pointId,
+        project: document.getElementById('projectName').value,
+        surveyor: document.getElementById('surveyorName').value,
+        latitude: latitude,
+        longitude: document.getElementById('longitude').value,
+        elevation: document.getElementById('elevation').value || '0',
+        accuracy: document.getElementById('accuracy').value,
+        type: document.getElementById('pointType').value,
+        description: document.getElementById('pointDescription').value,
+        timestamp: new Date().toLocaleString('am-ET'),
+        date: new Date().toISOString().split('T')[0],
+        hasPhoto: !!currentPhoto,
+        photoData: currentPhoto || null
+    };
+    
+    // ወደ ዝርዝር ጨምር
+    surveyPoints.push(point);
+    localStorage.setItem('surveyPoints', JSON.stringify(surveyPoints));
+    
+    // የመጨረሻ ፕሮጀክት አስቀምጥ
+    localStorage.setItem('lastProject', point.project);
+    
+    // ማሳወቂያ
+    const photoText = point.hasPhoto ? ' ከፎቶ ጋር' : '';
+    alert(`✅ ነጥብ "${pointId}"${photoText} ተሰብስቧል!`);
+    
+    // ፎርም አጽዳ ለሚቀጥለው ነጥብ
+    removePhoto();
+    clearCurrentForm();
+    updateStats();
+    displayPoints();
+    displayPhotos();
+    checkStorage();
+}
+
+// የአሁኑ ፎርም አጽዳ
+function clearCurrentForm() {
+    document.getElementById('pointDescription').value = '';
+    
+    // የሚቀጥለው ነጥብ መለያ በራስ-ሰር አዘጋጅ
+    const lastPoint = surveyPoints[surveyPoints.length - 1];
+    if (lastPoint && lastPoint.id) {
+        const nextId = generateNextID(lastPoint.id);
+        document.getElementById('pointId').value = nextId;
+    } else {
+        document.getElementById('pointId').value = 'P001';
+    }
+}
+
+// ቀጣይ መለያ ፍጠር
+function generateNextID(lastID) {
+    const match = lastID.match(/(\D+)(\d+)/);
+    if (match) {
+        const prefix = match[1];
+        const number = parseInt(match[2]) + 1;
+        return prefix + number.toString().padStart(match[2].length, '0');
+    }
+    return lastID + '_2';
+}
+
+// የመጨረሻ ፕሮጀክት ጫን
+function loadLastProject() {
+    const lastProject = localStorage.getItem('lastProject');
+    if (lastProject) {
+        document.getElementById('projectName').value = lastProject;
+    }
+}
+
+// ነጥቦችን አሳይ
+function displayPoints() {
+    const pointsList = document.getElementById('pointsList');
+    const searchTerm = document.getElementById('searchPoints').value.toLowerCase();
+    
+    let filteredPoints = surveyPoints;
+    if (searchTerm) {
+        filteredPoints = surveyPoints.filter(point => 
+            point.id.toLowerCase().includes(searchTerm) ||
+            point.project.toLowerCase().includes(searchTerm) ||
+            point.type.toLowerCase().includes(searchTerm) ||
+            (point.description && point.description.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    if (filteredPoints.length === 0) {
+        pointsList.innerHTML = '<div class="gps-status status-info">📝 ምንም ነጥቦች አልተሰበሰቡም</div>';
+        return;
+    }
+    
+    // በቅርብ ጊዜ በላይ አስቀምጥ
+    filteredPoints.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    pointsList.innerHTML = filteredPoints.map((point, index) => `
+        <div class="data-card">
+            <div class="data-actions">
+                ${point.hasPhoto ? '<button class="icon-btn" onclick="viewPhoto(\'' + point.id + '\')" title="ፎቶ አሳይ">📷</button>' : ''}
+                <button class="icon-btn" onclick="editPoint(\'${point.id}\')" title="አስተካክል">✏️</button>
+                <button class="icon-btn" onclick="deletePoint(\'${point.id}\')" title="ሰርዝ">🗑️</button>
+            </div>
+            <h4>${point.id} - ${getTypeIcon(point.type)} ${getTypeName(point.type)}</h4>
+            <p><strong>ፕሮጀክት:</strong> ${point.project}</p>
+            <p><strong>መጋጠሚያ:</strong> ${point.latitude}, ${point.longitude}</p>
+            <p><strong>ከፍታ:</strong> ${point.elevation}ሜ | <strong>ትክክለኛነት:</strong> ±${point.accuracy}ሜ</p>
+            <p><strong>ጊዜ:</strong> ${point.timestamp}</p>
+            ${point.hasPhoto ? '<p><strong>ፎቶ:</strong> ✅ ተጭኗል</p>' : ''}
+            ${point.description ? `<p><strong>መግለጫ:</strong> ${point.description}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+// ነጥብ አስተካክል
+function editPoint(pointId) {
+    const point = surveyPoints.find(p => p.id === pointId);
+    if (!point) return;
+    
+    if (confirm(`ነጥብ "${pointId}" አስተካክል ይፈልጋሉ?`)) {
+        // ፎርም አስቀምጥ
+        document.getElementById('pointId').value = point.id;
+        document.getElementById('projectName').value = point.project;
+        document.getElementById('surveyorName').value = point.surveyor;
+        document.getElementById('latitude').value = point.latitude;
+        document.getElementById('longitude').value = point.longitude;
+        document.getElementById('elevation').value = point.elevation;
+        document.getElementById('pointType').value = point.type;
+        document.getElementById('pointDescription').value = point.description || '';
+        
+        // ፎቶ ካለ አስቀምጥ
+        if (point.hasPhoto && point.photoData) {
+            currentPhoto = point.photoData;
+            const preview = document.getElementById('photoPreview');
+            preview.src = currentPhoto;
+            preview.style.display = 'block';
+            document.getElementById('photoStatus').textContent = '✅ ፎቶ ተጫኗል (ከዳታ በታች)';
+            document.getElementById('removePhotoBtn').style.display = 'block';
+        }
+        
+        // ወደ ዳታ ስብሰባ ትር ቀይር
+        switchTab('data-collection');
+        
+        // ያለውን ነጥብ ለመተካት ምልክት አድርግ
+        setTimeout(() => {
+            alert('ነጥቡ በፎርም ውስጥ ተጭኗል። ለውጦችን ካደረጉ አዲስ ነጥብ አስቀምጥ የሚለውን ይጫኑ። ያለው ነጥብ በራስ-ሰር ይተካል።');
+        }, 500);
+    }
+}
+
+// ነጥብ ሰርዝ
+function deletePoint(pointId) {
+    if (confirm(`ነጥብ "${pointId}" እና ከእሱ ጋር ያለው ፎቶ ለመሰረዝ እርግጠኛ ነዎት?`)) {
+        surveyPoints = surveyPoints.filter(point => point.id !== pointId);
+        localStorage.setItem('surveyPoints', JSON.stringify(surveyPoints));
+        displayPoints();
+        displayPhotos();
+        updateStats();
+        checkStorage();
+        showExportResult('✅ ነጥብ ተሰርዟል!', 'success');
+    }
+}
+
+// ስታቲስቲክስ አዘምን
+function updateStats() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayPoints = surveyPoints.filter(point => point.date === today).length;
+    const pointsWithPhotos = surveyPoints.filter(point => point.hasPhoto).length;
+    
+    document.getElementById('totalPoints').textContent = surveyPoints.length;
+    document.getElementById('todayPoints').textContent = todayPoints;
+    
+    // የፎቶ ስታቲስቲክስ
+    document.getElementById('photosStats').innerHTML = `
+        <div class="stat-card">
+            <span class="stat-number">${pointsWithPhotos}</span>
+            <span>ፎቶ ያላቸው ነጥቦች</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">${surveyPoints.length - pointsWithPhotos}</span>
+            <span>ፎቶ የሌላቸው ነጥቦች</span>
+        </div>
+    `;
+}
+
+// የነጥብ አይነት አይኮን
+function getTypeIcon(type) {
+    const icons = {
+        'boundary': '🟦', 'control': '🟥', 'topo': '🟩',
+        'building': '🏠', 'road': '🛣️', 'utility': '⚡',
+        'tree': '🌳', 'water': '💧', 'other': '📌'
+    };
+    return icons[type] || '📌';
+}
+
+// የነጥብ አይነት ስም
+function getTypeName(type) {
+    const names = {
+        'boundary': 'ድንበር', 'control': 'ቁጥጥር', 'topo': 'ትንፋሽ',
+        'building': 'ህንፃ', 'road': 'መንገድ', 'utility': 'አገልግሎት',
+        'tree': 'ዛፍ', 'water': 'ውሃ', 'other': 'ሌላ'
+    };
+    return names[type] || type;
+}
+
+// ፎቶዎችን አሳይ
+function displayPhotos() {
+    const photosGallery = document.getElementById('photosGallery');
+    const noPhotosMessage = document.getElementById('noPhotosMessage');
+    const searchTerm = document.getElementById('searchPhotos').value.toLowerCase();
+    
+    const pointsWithPhotos = surveyPoints.filter(point => 
+        point.hasPhoto && point.photoData &&
+        (!searchTerm || point.id.toLowerCase().includes(searchTerm))
+    );
+    
+    if (pointsWithPhotos.length === 0) {
+        photosGallery.innerHTML = '';
+        noPhotosMessage.style.display = 'block';
+        return;
+    }
+    
+    noPhotosMessage.style.display = 'none';
+    
+    photosGallery.innerHTML = pointsWithPhotos.map(point => `
+        <img src="${point.photoData}" 
+             class="photo-thumbnail" 
+             onclick="viewPhoto('${point.id}')"
+             title="${point.id} - ${getTypeName(point.type)}">
+    `).join('');
+}
+
+// ፎቶ ሞዳል አሳይ
+function viewPhoto(pointId) {
+    const point = surveyPoints.find(p => p.id === pointId);
+    if (!point || !point.photoData) return;
+    
+    document.getElementById('modalImage').src = point.photoData;
+    document.getElementById('modalInfo').innerHTML = `
+        <strong>${point.id}</strong> - ${getTypeName(point.type)}<br>
+        ${point.latitude}, ${point.longitude}<br>
+        ${point.timestamp}
+    `;
+    document.getElementById('photoModal').style.display = 'flex';
+}
+
+// ፎቶ ሞዳል ዝጋ
+function closePhotoModal() {
+    document.getElementById('photoModal').style.display = 'none';
+}
+
+// ማከማቻ ሁኔታ ይፈትሹ
+function checkStorage() {
+    const storageInfo = document.getElementById('storageInfo');
+    const dataSize = JSON.stringify(surveyPoints).length;
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    if (dataSize > maxSize * 0.8) { // 80% ከሞላ
+        storageInfo.innerHTML = `
+            <div class="storage-warning">
+                ⚠️ <strong>ማከማቻ ሊሞላ ነው!</strong><br>
+                ዳታዎችዎ ትልቅ ሆነዋል። እባክዎ ዳታዎችን ወደ ፋይል ያውጡ እና ማከማቻውን ያፅዱ።
+            </div>
+        `;
+    } else if (dataSize > maxSize * 0.5) { // 50% ከሞላ
+        storageInfo.innerHTML = `
+            <div class="gps-status status-info">
+                💾 <strong>የማከማቻ ሁኔታ:</strong> ${(dataSize / 1024).toFixed(0)}KB / ${(maxSize / 1024).toFixed(0)}KB
+            </div>
+        `;
+    } else {
+        storageInfo.innerHTML = '';
+    }
+}
+
+// ዳታ ኤክስፖርት ተግባራት
+function exportToCSV() {
+    if (surveyPoints.length === 0) {
+        showExportResult('❌ ምንም ዳታ አልተሰበሰበም', 'error');
+        return;
+    }
+    
+    let csv = 'PointID,Project,Surveyor,Latitude,Longitude,Elevation,Accuracy,Type,Description,Timestamp,HasPhoto\n';
+    
+    surveyPoints.forEach(point => {
+        csv += `"${point.id}","${point.project}","${point.surveyor}",${point.latitude},${point.longitude},${point.elevation},${point.accuracy},"${point.type}","${point.description || ''}","${point.timestamp}","${point.hasPhoto ? 'Yes' : 'No'}"\n`;
+    });
+    
+    downloadFile(csv, 'survey_data.csv', 'text/csv');
+    showExportResult('✅ CSV ፋይል ተፈጥሯል!', 'success');
+}
+
+function exportToJSON() {
+    if (surveyPoints.length === 0) {
+        showExportResult('❌ ምንም ዳታ አልተሰበሰበም', 'error');
+        return;
+    }
+    
+    // ፎቶ ዳታ ከመጨረሻው ውጪ (ትልቅ መጠን)
+    const pointsWithoutPhotos = surveyPoints.map(point => {
+        const { photoData, ...pointWithoutPhoto } = point;
+        return pointWithoutPhoto;
+    });
+    
+    const json = JSON.stringify(pointsWithoutPhotos, null, 2);
+    downloadFile(json, 'survey_data.json', 'application/json');
+    showExportResult('✅ JSON ፋይል ተፈጥሯል! (ፎቶዎች አልተካተቱም)', 'success');
+}
+
+function exportToKML() {
+    if (surveyPoints.length === 0) {
+        showExportResult('❌ ምንም ዳታ አልተሰበሰበም', 'error');
+        return;
+    }
+    
+    let kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+    <name>Survey Points</name>
+    <description>Survey data collected on ${new Date().toLocaleDateString('am-ET')}</description>
+`;
+    
+    surveyPoints.forEach(point => {
+        kml += `
+    <Placemark>
+        <name>${point.id}</name>
+        <description><![CDATA[
+            <strong>Project:</strong> ${point.project}<br/>
+            <strong>Type:</strong> ${getTypeName(point.type)}<br/>
+            <strong>Elevation:</strong> ${point.elevation}m<br/>
+            <strong>Accuracy:</strong> ±${point.accuracy}m<br/>
+            <strong>Time:</strong> ${point.timestamp}<br/>
+            <strong>Has Photo:</strong> ${point.hasPhoto ? 'Yes' : 'No'}<br/>
+            ${point.description ? '<strong>Description:</strong> ' + point.description + '<br/>' : ''}
+        ]]></description>
+        <Point>
+            <coordinates>${point.longitude},${point.latitude},${point.elevation}</coordinates>
+        </Point>
+    </Placemark>
+`;
+    });
+    
+    kml += '</Document></kml>';
+    
+    downloadFile(kml, 'survey_data.kml', 'application/vnd.google-earth.kml+xml');
+    showExportResult('✅ KML ፋይል ተፈጥሯል!', 'success');
+}
+
+function exportPhotos() {
+    const pointsWithPhotos = surveyPoints.filter(point => point.hasPhoto && point.photoData);
+    
+    if (pointsWithPhotos.length === 0) {
+        showExportResult('❌ ምንም ፎቶዎች አልተነሱም', 'error');
+        return;
+    }
+    
+    // ቀላል የፎቶ ማውጫ ፋይል ፍጠር
+    let exportContent = 'Photo Export - Survey Data\n';
+    exportContent += 'Generated on: ' + new Date().toLocaleString('am-ET') + '\n\n';
+    
+    pointsWithPhotos.forEach(point => {
+        exportContent += `Point ID: ${point.id}\n`;
+        exportContent += `Project: ${point.project}\n`;
+        exportContent += `Coordinates: ${point.latitude}, ${point.longitude}\n`;
+        exportContent += `Time: ${point.timestamp}\n`;
+        exportContent += `Photo: [BASE64_DATA_${point.id}]\n\n`;
+    });
+    
+    downloadFile(exportContent, 'photo_export.txt', 'text/plain');
+    showExportResult(`✅ ፎቶ ማውጫ ፋይል ተፈጥሯል! (${pointsWithPhotos.length} ፎቶዎች)`, 'success');
+}
+
+// ፋይል አውርድ
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// የኤክስፖርት ውጤት አሳይ
+function showExportResult(message, type) {
+    const resultDiv = document.getElementById('exportResult');
+    resultDiv.className = `gps-status status-${type}`;
+    resultDiv.innerHTML = message;
+    resultDiv.style.display = 'block';
+    setTimeout(() => resultDiv.style.display = 'none', 5000);
+}
+
+// ሁሉንም ዳታ አጽዳ
+function clearAllData() {
+    if (surveyPoints.length === 0) {
+        showExportResult('❌ ምንም ዳታ አልተሰበሰበም', 'error');
+        return;
+    }
+    
+    if (confirm('❗ ሁሉንም የተሰበሰቡ ዳታዎች እና ፎቶዎች ለመሰረዝ እርግጠኛ ነዎት? ይህ እርምጃ መመለስ አይቻልም!')) {
+        surveyPoints = [];
+        localStorage.removeItem('surveyPoints');
+        localStorage.removeItem('lastProject');
+        updateStats();
+        displayPoints();
+        displayPhotos();
+        checkStorage();
+        showExportResult('✅ ሁሉም ዳታዎች ተሰርዘዋል!', 'success');
+    }
+}
+
+// የፎቶ ሞዳል ላይ ጠቅ ሲደረግ ዝጋ
+document.getElementById('photoModal').addEventListener('click', function(e) {
+    if (e.target.id === 'photoModal') {
+        closePhotoModal();
+    }
+});
+
+// የግላዊነት ሞዳል ላይ ጠቅ ሲደረግ ዝጋ
+document.getElementById('privacyModal').addEventListener('click', function(e) {
+    if (e.target.id === 'privacyModal') {
+        closePrivacyModal();
+    }
+});
+
+document.getElementById('aboutModal').addEventListener('click', function(e) {
+    if (e.target.id === 'aboutModal') {
+        closeAboutModal();
+    }
+});
+
+document.getElementById('helpModal').addEventListener('click', function(e) {
+    if (e.target.id === 'helpModal') {
+        closeHelpModal();
+    }
+});
+
+// ፍለጋ አድንብ
+document.getElementById('searchPoints').addEventListener('input', displayPoints);
+document.getElementById('searchPhotos').addEventListener('input', displayPhotos);
+</script>
+
+</body>
+</html>
